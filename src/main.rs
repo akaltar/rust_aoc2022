@@ -290,37 +290,37 @@ fn solve4() {
     println!("Redundants: {redundant_count}, overlaps: {overlap_count}");
 }
 
-struct crane_instruction {
-    amount: u32,
-    from: u32,
-    to: u32,
+struct CraneInstruction {
+    amount: usize,
+    from: usize,
+    to: usize,
 }
 
-impl crane_instruction {
-    fn from_str(str: &str) -> crane_instruction {
+impl CraneInstruction {
+    fn from_str(str: &str) -> CraneInstruction {
         let parts: Vec<&str> = str.split(' ').collect();
         let amount_str = parts[1];
         let from_str = parts[3];
         let to_str = parts[5];
-        return crane_instruction {
+        CraneInstruction {
             amount: amount_str.parse().unwrap(),
             from: from_str.parse().unwrap(),
             to: to_str.parse().unwrap(),
-        };
+        }
     }
 }
 
-struct crane_system {
+struct CraneSystem {
     stacks: Vec<Vec<char>>,
 }
 
-impl crane_system {
-    fn new() -> crane_system {
-        return crane_system { stacks: Vec::new() };
+impl CraneSystem {
+    fn new() -> CraneSystem {
+        CraneSystem { stacks: Vec::new() }
     }
 
     fn handle_possible_crate(&mut self, crane_crate: &str, stack_id: usize) {
-        let box_type = crane_crate.chars().nth(2).unwrap();
+        let box_type = crane_crate.chars().nth(1).unwrap();
         if !box_type.is_alphabetic() {
             return;
         }
@@ -331,24 +331,61 @@ impl crane_system {
 
         self.stacks.get_mut(stack_id).unwrap().push(box_type);
     }
+
+    fn handle_instruction(&mut self, instruction: CraneInstruction, new_mover: bool) {
+        if !new_mover {
+            for _ in 0..instruction.amount {
+                let crate_type;
+                {
+                    let src = self.stacks.get_mut(instruction.from - 1).unwrap();
+                    crate_type = src.pop().unwrap();
+                }
+                let dst = self.stacks.get_mut(instruction.to - 1).unwrap();
+                dst.push(crate_type);
+            }
+        } else {
+            let mut crates_in_air: Vec<char>;
+            {
+                let src = self.stacks.get_mut(instruction.from - 1).unwrap();
+                let removed_range = (src.len() - instruction.amount)..(src.len());
+                crates_in_air = src.drain(removed_range).collect();
+            }
+            let dst = self.stacks.get_mut(instruction.to - 1).unwrap();
+            dst.append(&mut crates_in_air);
+        }
+    }
+
+    fn print_top(&self) {
+        for stack in &self.stacks {
+            let last_char = stack.last().unwrap();
+            print!("{last_char}");
+        }
+    }
+    fn flip(&mut self) {
+        for stack in self.stacks.iter_mut() {
+            stack.reverse();
+        }
+    }
 }
 
-fn solve5() {
+fn solve5(new_mover: bool) {
     let all = read_file_to_string("input5.txt".to_string());
     let lines = all.lines();
     let mut stacks_over: bool = false;
 
-    let mut crane = crane_system::new();
+    let mut crane = CraneSystem::new();
     for line in lines {
-        if line.len() == 0 {
+        if line.is_empty() {
             stacks_over = true;
-            return;
+            crane.flip();
+            continue;
         }
 
         if !stacks_over {
             let mut current_stack = 0;
+            let mut chars = line.chars();
             loop {
-                let chunk = line.chars().next_chunk::<4>();
+                let chunk = chars.next_chunk::<4>();
                 match chunk {
                     Ok(maybe_crate) => {
                         let maybe_crate_string = String::from_iter(maybe_crate);
@@ -363,9 +400,13 @@ fn solve5() {
                 current_stack += 1;
             }
         } else {
-            //let instruction = parse_crane_ins
+            let instruction = CraneInstruction::from_str(line);
+            crane.handle_instruction(instruction, new_mover);
         }
     }
+
+    println!("Top of stacks, {}", crane.stacks.len());
+    crane.print_top();
 }
 
 fn main() {
@@ -373,4 +414,6 @@ fn main() {
     solve2();
     solve3();
     solve4();
+    solve5(false);
+    solve5(true);
 }
