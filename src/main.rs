@@ -1,22 +1,22 @@
 #![feature(iter_next_chunk)]
 
+use std::fs::File;
 use std::io::prelude::*;
 use std::path::Path;
-use std::fs::File;
 
 fn read_file_to_string(file_name: String) -> String {
     let path = Path::new(&file_name);
     let display = path.display();
-  
+
     let mut file = match File::open(&path) {
-      Err(why) => panic!("Couldn't open {}: {}", display, why),
-      Ok(file) => file,
+        Err(why) => panic!("Couldn't open {}: {}", display, why),
+        Ok(file) => file,
     };
     let mut string = String::new();
-  
+
     match file.read_to_string(&mut string) {
-      Err(why) => panic!("Couldn't read {}:{}", display, why),
-      Ok(_) => string,
+        Err(why) => panic!("Couldn't read {}:{}", display, why),
+        Ok(_) => string,
     }
 }
 
@@ -48,7 +48,6 @@ fn solve1() {
     let third = carried_per_person.get(third_index).unwrap();
     let top_three = last + second + third;
     println!("TopThree {top_three}");
-    
 }
 
 #[derive(PartialEq)]
@@ -61,36 +60,30 @@ enum Play {
 enum Result {
     Win,
     Lose,
-    Draw
+    Draw,
 }
 
-fn get_target_play(opponent_play:&Play, target_result:Result) -> Play {
+fn get_target_play(opponent_play: &Play, target_result: Result) -> Play {
     match opponent_play {
-        Play::Rock => {
-            match target_result {
-                Result::Win => return Play::Paper,
-                Result::Draw => return Play::Rock,
-                Result::Lose => return Play::Scissors,
-            }
+        Play::Rock => match target_result {
+            Result::Win => return Play::Paper,
+            Result::Draw => return Play::Rock,
+            Result::Lose => return Play::Scissors,
         },
-        Play::Paper => {
-            match target_result {
-                Result::Win => return Play::Scissors,
-                Result::Draw => return Play::Paper,
-                Result::Lose => return Play::Rock,
-            }
+        Play::Paper => match target_result {
+            Result::Win => return Play::Scissors,
+            Result::Draw => return Play::Paper,
+            Result::Lose => return Play::Rock,
         },
-        Play::Scissors => {
-            match target_result {
-                Result::Win => Play::Rock,
-                Result::Draw => Play::Scissors,
-                Result::Lose => Play::Paper,
-            }
-        }
+        Play::Scissors => match target_result {
+            Result::Win => Play::Rock,
+            Result::Draw => Play::Scissors,
+            Result::Lose => Play::Paper,
+        },
     }
 }
 
-fn char_to_play(c:char) -> Play {
+fn char_to_play(c: char) -> Play {
     match c {
         'A' => return Play::Rock,
         'B' => return Play::Paper,
@@ -102,7 +95,7 @@ fn char_to_play(c:char) -> Play {
     }
 }
 
-fn char_to_result(c:char) -> Result {
+fn char_to_result(c: char) -> Result {
     match c {
         'X' => return Result::Lose,
         'Y' => return Result::Draw,
@@ -113,39 +106,37 @@ fn char_to_result(c:char) -> Result {
 
 fn get_play_result(enemy: Play, us: &Play) -> Result {
     match enemy {
-        Play::Rock => {
-            match us {
-                Play::Rock => return Result::Draw,
-                Play::Paper => return Result::Win,
-                Play::Scissors => return Result::Lose,
-            }
+        Play::Rock => match us {
+            Play::Rock => return Result::Draw,
+            Play::Paper => return Result::Win,
+            Play::Scissors => return Result::Lose,
         },
-        Play::Paper => {
-            match us {
-                Play::Rock => return Result::Lose,
-                Play::Paper => return Result::Draw,
-                Play::Scissors => return Result::Win,
-            }
+        Play::Paper => match us {
+            Play::Rock => return Result::Lose,
+            Play::Paper => return Result::Draw,
+            Play::Scissors => return Result::Win,
         },
-        Play::Scissors => {
-            match us {
-                Play::Rock => return Result::Win,
-                Play::Paper => return Result::Lose,
-                Play::Scissors => return Result::Draw
-            }
-        }
+        Play::Scissors => match us {
+            Play::Rock => return Result::Win,
+            Play::Paper => return Result::Lose,
+            Play::Scissors => return Result::Draw,
+        },
     }
 }
 
-fn get_rps_score(line:&str, new_method: bool) -> i32 {
+fn get_rps_score(line: &str, new_method: bool) -> i32 {
     assert_eq!(line.len(), 3);
     let opponent_char = line.chars().nth(0).unwrap();
     let our_char = line.chars().nth(2).unwrap();
 
     let opponent_play = char_to_play(opponent_char);
     let target_result = char_to_result(our_char);
-    
-    let our_play =  if new_method {get_target_play(&opponent_play, target_result) } else {char_to_play(our_char)};
+
+    let our_play = if new_method {
+        get_target_play(&opponent_play, target_result)
+    } else {
+        char_to_play(our_char)
+    };
 
     let mut score = 0;
     let result = get_play_result(opponent_play, &our_play);
@@ -178,20 +169,22 @@ fn solve2() {
     println!("currentScore: {old_score}, new score: {new_score}");
 }
 
-fn split_in_half(line:&str) -> (&str, &str) {
+fn split_in_half(line: &str) -> (&str, &str) {
     line.split_at(line.len() / 2)
 }
 
-fn get_match(a:&str, b:&str) -> char {
+fn get_match(a: &str, b: &str) -> char {
     for a_char in a.chars() {
         for b_char in b.chars() {
-            if a_char == b_char {return a_char}
+            if a_char == b_char {
+                return a_char;
+            }
         }
     }
     panic!("We must find a match");
 }
 
-fn get_match_trio(a:&str, b:&str, c:&str) -> char {
+fn get_match_trio(a: &str, b: &str, c: &str) -> char {
     for a_char in a.chars() {
         for b_char in b.chars() {
             if a_char == b_char {
@@ -206,20 +199,20 @@ fn get_match_trio(a:&str, b:&str, c:&str) -> char {
     panic!("We must find a match");
 }
 
-fn get_letter_score(letter:char) -> u32 {
-    if letter.is_lowercase()  {
+fn get_letter_score(letter: char) -> u32 {
+    if letter.is_lowercase() {
         return letter as u32 - 'a' as u32 + 1;
     } else {
         return letter as u32 - 'A' as u32 + 27;
     }
 }
 
-fn process_trio(chunk: [&str;3]) -> u32 {
+fn process_trio(chunk: [&str; 3]) -> u32 {
     let a = chunk[0];
     let b = chunk[1];
     let c = chunk[2];
 
-    let matching = get_match_trio(a,b,c);
+    let matching = get_match_trio(a, b, c);
 
     return get_letter_score(matching);
 }
@@ -239,12 +232,9 @@ fn solve3() {
     let mut badge_prio = 0;
     let mut second_line_iterator = all.lines();
     loop {
-        badge_prio += match second_line_iterator.next_chunk::<3>()
-        {
-            Ok(val) => {
-                process_trio(val)
-            },
-            Err(_) => break
+        badge_prio += match second_line_iterator.next_chunk::<3>() {
+            Ok(val) => process_trio(val),
+            Err(_) => break,
         }
     }
     println!("total prio {total_priority}, badge prio {badge_prio}")
@@ -269,7 +259,10 @@ fn parse_range(dash_string: &str) -> Range {
     let mut numbers = dash_string.split('-');
     let first = numbers.next().unwrap();
     let second = numbers.next().unwrap();
-    return Range(first.parse::<i32>().unwrap(), second.parse::<i32>().unwrap());
+    return Range(
+        first.parse::<i32>().unwrap(),
+        second.parse::<i32>().unwrap(),
+    );
 }
 
 fn line_to_ranges(line: &str) -> (Range, Range) {
@@ -286,12 +279,93 @@ fn solve4() {
     let mut overlap_count = 0;
     for line in lines {
         let ranges = line_to_ranges(line);
-        if ranges.0.is_subset(&ranges.1) { redundant_count += 1; }
-        if ranges.0.overlaps(&ranges.1) { overlap_count += 1;}
+        if ranges.0.is_subset(&ranges.1) {
+            redundant_count += 1;
+        }
+        if ranges.0.overlaps(&ranges.1) {
+            overlap_count += 1;
+        }
     }
 
     println!("Redundants: {redundant_count}, overlaps: {overlap_count}");
+}
 
+struct crane_instruction {
+    amount: u32,
+    from: u32,
+    to: u32,
+}
+
+impl crane_instruction {
+    fn from_str(str: &str) -> crane_instruction {
+        let parts: Vec<&str> = str.split(' ').collect();
+        let amount_str = parts[1];
+        let from_str = parts[3];
+        let to_str = parts[5];
+        return crane_instruction {
+            amount: amount_str.parse().unwrap(),
+            from: from_str.parse().unwrap(),
+            to: to_str.parse().unwrap(),
+        };
+    }
+}
+
+struct crane_system {
+    stacks: Vec<Vec<char>>,
+}
+
+impl crane_system {
+    fn new() -> crane_system {
+        return crane_system { stacks: Vec::new() };
+    }
+
+    fn handle_possible_crate(&mut self, crane_crate: &str, stack_id: usize) {
+        let box_type = crane_crate.chars().nth(2).unwrap();
+        if !box_type.is_alphabetic() {
+            return;
+        }
+
+        if self.stacks.len() <= stack_id {
+            self.stacks.resize(stack_id + 1, Vec::new());
+        }
+
+        self.stacks.get_mut(stack_id).unwrap().push(box_type);
+    }
+}
+
+fn solve5() {
+    let all = read_file_to_string("input5.txt".to_string());
+    let lines = all.lines();
+    let mut stacks_over: bool = false;
+
+    let mut crane = crane_system::new();
+    for line in lines {
+        if line.len() == 0 {
+            stacks_over = true;
+            return;
+        }
+
+        if !stacks_over {
+            let mut current_stack = 0;
+            loop {
+                let chunk = line.chars().next_chunk::<4>();
+                match chunk {
+                    Ok(maybe_crate) => {
+                        let maybe_crate_string = String::from_iter(maybe_crate);
+                        crane.handle_possible_crate(maybe_crate_string.as_str(), current_stack);
+                    }
+                    Err(maybe_crate) => {
+                        let maybe_crate_string = String::from_iter(maybe_crate);
+                        crane.handle_possible_crate(maybe_crate_string.as_str(), current_stack);
+                        break;
+                    }
+                }
+                current_stack += 1;
+            }
+        } else {
+            //let instruction = parse_crane_ins
+        }
+    }
 }
 
 fn main() {
