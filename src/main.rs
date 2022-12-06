@@ -1,4 +1,5 @@
 #![feature(iter_next_chunk)]
+#![feature(slice_partition_dedup)]
 
 use std::fs::File;
 use std::io::prelude::*;
@@ -407,6 +408,27 @@ fn solve5(new_mover: bool) {
 
     println!("Top of stacks, {}", crane.stacks.len());
     crane.print_top();
+    println!("");
+}
+
+fn is_start_of_identifier(chars: Vec<char>, len: usize) -> bool {
+    let mut sorted_chars: Vec<char> = chars;
+    sorted_chars.sort();
+    let (uniques, _duplications) = sorted_chars.partition_dedup();
+    uniques.len() == len
+}
+
+fn solve6(header_len: usize) {
+    let datastream = read_file_to_string("input6.txt".to_string());
+    for i in header_len..datastream.len() {
+        let start = i - header_len;
+        let maybe_start: Vec<char> = datastream.chars().skip(start).take(header_len).collect();
+
+        if is_start_of_identifier(maybe_start, header_len) {
+            println!("found at {i}");
+            return;
+        }
+    }
 }
 
 fn main() {
@@ -416,4 +438,6 @@ fn main() {
     solve4();
     solve5(false);
     solve5(true);
+    solve6(4);
+    solve6(14);
 }
