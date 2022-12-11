@@ -1,28 +1,11 @@
 #![feature(iter_next_chunk)]
 #![feature(slice_partition_dedup)]
 
-use std::fs::File;
-use std::io::prelude::*;
-use std::path::Path;
-
-fn read_file_to_string(file_name: String) -> String {
-    let path = Path::new(&file_name);
-    let display = path.display();
-
-    let mut file = match File::open(&path) {
-        Err(why) => panic!("Couldn't open {}: {}", display, why),
-        Ok(file) => file,
-    };
-    let mut string = String::new();
-
-    match file.read_to_string(&mut string) {
-        Err(why) => panic!("Couldn't read {}:{}", display, why),
-        Ok(_) => string,
-    }
-}
+mod common;
+mod d7;
 
 fn solve1() {
-    let all = read_file_to_string("input1.txt".to_string());
+    let all = common::read_file_to_string("input1.txt".to_string());
     let line_iterator = all.lines();
     let mut carried_per_person = Vec::new();
     let mut current_calories = 0;
@@ -157,7 +140,7 @@ fn get_rps_score(line: &str, new_method: bool) -> i32 {
 }
 
 fn solve2() {
-    let all = read_file_to_string("input2.txt".to_string());
+    let all = common::read_file_to_string("input2.txt".to_string());
     let line_iterator = all.lines();
 
     let mut old_score = 0;
@@ -219,7 +202,7 @@ fn process_trio(chunk: [&str; 3]) -> u32 {
 }
 
 fn solve3() {
-    let all = read_file_to_string("input3.txt".to_string());
+    let all = common::read_file_to_string("input3.txt".to_string());
 
     let line_iterator = all.lines();
 
@@ -274,7 +257,7 @@ fn line_to_ranges(line: &str) -> (Range, Range) {
 }
 
 fn solve4() {
-    let all = read_file_to_string("input4.txt".to_string());
+    let all = common::read_file_to_string("input4.txt".to_string());
     let lines = all.lines();
     let mut redundant_count = 0;
     let mut overlap_count = 0;
@@ -370,7 +353,7 @@ impl CraneSystem {
 }
 
 fn solve5(new_mover: bool) {
-    let all = read_file_to_string("input5.txt".to_string());
+    let all = common::read_file_to_string("input5.txt".to_string());
     let lines = all.lines();
     let mut stacks_over: bool = false;
 
@@ -419,7 +402,7 @@ fn is_start_of_identifier(chars: Vec<char>, len: usize) -> bool {
 }
 
 fn solve6(header_len: usize) {
-    let datastream = read_file_to_string("input6.txt".to_string());
+    let datastream = common::read_file_to_string("input6.txt".to_string());
     for i in header_len..datastream.len() {
         let start = i - header_len;
         let maybe_start: Vec<char> = datastream.chars().skip(start).take(header_len).collect();
@@ -440,4 +423,5 @@ fn main() {
     solve5(true);
     solve6(4);
     solve6(14);
+    d7::solve();
 }
