@@ -1,8 +1,10 @@
 #![feature(iter_next_chunk)]
 #![feature(slice_partition_dedup)]
+#![feature(slice_flatten)]
 
 mod common;
 mod d7;
+mod d8;
 
 fn solve1() {
     let all = common::read_file_to_string("input1.txt".to_string());
@@ -424,4 +426,5 @@ fn main() {
     solve6(4);
     solve6(14);
     d7::solve();
+    d8::solve();
 }
