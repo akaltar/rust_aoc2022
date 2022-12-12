@@ -12,7 +12,7 @@ fn solve1() {
     let mut carried_per_person = Vec::new();
     let mut current_calories = 0;
     for line in line_iterator {
-        if line.len() == 0 {
+        if line.is_empty() {
             carried_per_person.push(current_calories);
             current_calories = 0;
         } else {
@@ -52,14 +52,14 @@ enum Result {
 fn get_target_play(opponent_play: &Play, target_result: Result) -> Play {
     match opponent_play {
         Play::Rock => match target_result {
-            Result::Win => return Play::Paper,
-            Result::Draw => return Play::Rock,
-            Result::Lose => return Play::Scissors,
+            Result::Win => Play::Paper,
+            Result::Draw => Play::Rock,
+            Result::Lose => Play::Scissors,
         },
         Play::Paper => match target_result {
-            Result::Win => return Play::Scissors,
-            Result::Draw => return Play::Paper,
-            Result::Lose => return Play::Rock,
+            Result::Win => Play::Scissors,
+            Result::Draw => Play::Paper,
+            Result::Lose => Play::Rock,
         },
         Play::Scissors => match target_result {
             Result::Win => Play::Rock,
@@ -71,21 +71,21 @@ fn get_target_play(opponent_play: &Play, target_result: Result) -> Play {
 
 fn char_to_play(c: char) -> Play {
     match c {
-        'A' => return Play::Rock,
-        'B' => return Play::Paper,
-        'C' => return Play::Scissors,
-        'X' => return Play::Rock,
-        'Y' => return Play::Paper,
-        'Z' => return Play::Scissors,
+        'A' => Play::Rock,
+        'B' => Play::Paper,
+        'C' => Play::Scissors,
+        'X' => Play::Rock,
+        'Y' => Play::Paper,
+        'Z' => Play::Scissors,
         _ => todo!(),
     }
 }
 
 fn char_to_result(c: char) -> Result {
     match c {
-        'X' => return Result::Lose,
-        'Y' => return Result::Draw,
-        'Z' => return Result::Win,
+        'X' => Result::Lose,
+        'Y' => Result::Draw,
+        'Z' => Result::Win,
         _ => todo!(),
     }
 }
@@ -93,26 +93,26 @@ fn char_to_result(c: char) -> Result {
 fn get_play_result(enemy: Play, us: &Play) -> Result {
     match enemy {
         Play::Rock => match us {
-            Play::Rock => return Result::Draw,
-            Play::Paper => return Result::Win,
-            Play::Scissors => return Result::Lose,
+            Play::Rock => Result::Draw,
+            Play::Paper => Result::Win,
+            Play::Scissors => Result::Lose,
         },
         Play::Paper => match us {
-            Play::Rock => return Result::Lose,
-            Play::Paper => return Result::Draw,
-            Play::Scissors => return Result::Win,
+            Play::Rock => Result::Lose,
+            Play::Paper => Result::Draw,
+            Play::Scissors => Result::Win,
         },
         Play::Scissors => match us {
-            Play::Rock => return Result::Win,
-            Play::Paper => return Result::Lose,
-            Play::Scissors => return Result::Draw,
+            Play::Rock => Result::Win,
+            Play::Paper => Result::Lose,
+            Play::Scissors => Result::Draw,
         },
     }
 }
 
 fn get_rps_score(line: &str, new_method: bool) -> i32 {
     assert_eq!(line.len(), 3);
-    let opponent_char = line.chars().nth(0).unwrap();
+    let opponent_char = line.chars().next().unwrap();
     let our_char = line.chars().nth(2).unwrap();
 
     let opponent_play = char_to_play(opponent_char);
@@ -138,7 +138,7 @@ fn get_rps_score(line: &str, new_method: bool) -> i32 {
         Play::Scissors => score += 3,
     }
 
-    return score;
+    score
 }
 
 fn solve2() {
@@ -187,9 +187,9 @@ fn get_match_trio(a: &str, b: &str, c: &str) -> char {
 
 fn get_letter_score(letter: char) -> u32 {
     if letter.is_lowercase() {
-        return letter as u32 - 'a' as u32 + 1;
+        letter as u32 - 'a' as u32 + 1
     } else {
-        return letter as u32 - 'A' as u32 + 27;
+        letter as u32 - 'A' as u32 + 27
     }
 }
 
@@ -200,7 +200,7 @@ fn process_trio(chunk: [&str; 3]) -> u32 {
 
     let matching = get_match_trio(a, b, c);
 
-    return get_letter_score(matching);
+    get_letter_score(matching)
 }
 
 fn solve3() {
@@ -232,12 +232,12 @@ impl Range {
     fn is_subset(&self, other: &Range) -> bool {
         let self_is_subset = self.0 >= other.0 && self.1 <= other.1;
         let other_is_subset = other.0 >= self.0 && other.1 <= self.1;
-        return self_is_subset || other_is_subset;
+        self_is_subset || other_is_subset
     }
     fn overlaps(&self, other: &Range) -> bool {
         let beginning_inside = self.0 >= other.0 && self.0 <= other.1;
         let end_inside = self.1 >= other.0 && self.1 <= other.1;
-        return beginning_inside || end_inside || self.is_subset(other);
+        beginning_inside || end_inside || self.is_subset(other)
     }
 }
 
@@ -245,17 +245,17 @@ fn parse_range(dash_string: &str) -> Range {
     let mut numbers = dash_string.split('-');
     let first = numbers.next().unwrap();
     let second = numbers.next().unwrap();
-    return Range(
+    Range(
         first.parse::<i32>().unwrap(),
         second.parse::<i32>().unwrap(),
-    );
+    )
 }
 
 fn line_to_ranges(line: &str) -> (Range, Range) {
-    let mut ranges = line.split(",");
+    let mut ranges = line.split(',');
     let first_range = ranges.next().unwrap();
     let second_range = ranges.next().unwrap();
-    return (parse_range(first_range), parse_range(second_range));
+    (parse_range(first_range), parse_range(second_range))
 }
 
 fn solve4() {
@@ -393,7 +393,7 @@ fn solve5(new_mover: bool) {
 
     println!("Top of stacks, {}", crane.stacks.len());
     crane.print_top();
-    println!("");
+    println!();
 }
 
 fn is_start_of_identifier(chars: Vec<char>, len: usize) -> bool {
